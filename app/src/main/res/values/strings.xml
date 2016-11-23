@@ -5,4 +5,6 @@
     <string name="hint_pasword">Contraseña</string>
     <string name="text_button_login">Conectate</string>
     <string name="terminos">¿Aceptas los terminos y condiciones</string>
+    <string name="error_login_google">Error al iniciar Session</string>
+    <string name="hint_input_message">Mensaje</string>
 </resources>

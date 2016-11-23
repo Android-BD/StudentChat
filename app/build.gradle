@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+/* Butter Knife */
+apply plugin: 'com.jakewharton.butterknife'
 
 android {
     compileSdkVersion 25
@@ -33,4 +35,19 @@ dependencies {
 
     /* Components Material Design */
     compile 'com.android.support:recyclerview-v7:25.0.1'
+
+    /* Butter Knife */
+    compile 'com.jakewharton:butterknife:8.4.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
+
+    /* Firebase DataBase */
+    compile 'com.google.firebase:firebase-database:9.8.0'
+    compile 'com.firebaseui:firebase-ui-database:0.4.4'
+
+    /*Firebase Authenticate*/
+    compile 'com.google.firebase:firebase-auth:9.8.0'
+    compile 'com.google.android.gms:play-services-auth:9.8.0'
+    compile 'com.google.firebase:firebase-core:9.8.0'
 }
+
+apply plugin: 'com.google.gms.google-services'
