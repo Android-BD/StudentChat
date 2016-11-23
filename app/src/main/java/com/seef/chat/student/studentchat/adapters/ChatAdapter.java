@@ -19,17 +19,10 @@ import org.w3c.dom.Text;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-/**
- * Created by SALGUERO on 22/11/2016.
- */
-
 public class ChatAdapter extends FirebaseRecyclerAdapter<Chat, ChatAdapter.ChatViewHolder> {
 
-    private Context context;
-
-    public ChatAdapter(int modelLayout, DatabaseReference ref, Context context) {
+    public ChatAdapter(int modelLayout, DatabaseReference ref) {
         super(Chat.class, modelLayout, ChatAdapter.ChatViewHolder.class, ref);
-        this.context = context;
     }
 
     @Override
@@ -43,19 +36,19 @@ public class ChatAdapter extends FirebaseRecyclerAdapter<Chat, ChatAdapter.ChatV
         String username = chat.getUsername();
         String message = chat.getMessage();
         String idUser = chat.getIdUser();
+        String hour = chat.getHour();
 
         if (idUser.trim().equals(Helper.ID_USER.trim())) {
-            viewHolder.txtUserReceived.setText(username);
-            viewHolder.txtMessageReceived.setText(message);
-            viewHolder.linearReceived.setVisibility(View.GONE);
-
-        } else {
             viewHolder.txtUserSend.setText(username);
             viewHolder.txtMessageSend.setText(message);
+            viewHolder.txtHoraSend.setText(hour);
+            viewHolder.linearReceived.setVisibility(View.GONE);
+        } else {
+            viewHolder.txtUserReceived.setText(username);
+            viewHolder.txtMessageReceived.setText(message);
+            viewHolder.txtHoraReceived.setText(hour);
             viewHolder.linearSend.setVisibility(View.GONE);
         }
-
-
     }
 
 
@@ -69,6 +62,10 @@ public class ChatAdapter extends FirebaseRecyclerAdapter<Chat, ChatAdapter.ChatV
         TextView txtUserReceived;
         @BindView(R.id.txtMessageReceived)
         TextView txtMessageReceived;
+        @BindView(R.id.txtHoraSend)
+        TextView txtHoraSend;
+        @BindView(R.id.txtHoraReceived)
+        TextView txtHoraReceived;
 
         @BindView(R.id.linearSend)
         LinearLayout linearSend;

@@ -4,6 +4,7 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
+        android:gravity="right"
         android:id="@+id/linearSend"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -13,16 +14,15 @@
 
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:orientation="vertical"
             android:background="@drawable/chat_right"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:paddingTop="3dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:layout_weight="0.9"
-            android:paddingBottom="10dp">
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingBottom="5dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -42,43 +42,37 @@
                 android:text="Android charting application xml ui design tutorial with example. Android charting application xml ui design tutorial"
                 android:textColor="@color/colorBlack" />
 
-        </LinearLayout>
+            <TextView
+                android:id="@+id/txtHoraSend"
+                android:gravity="right"
+                android:textStyle="bold"
+                android:text="10:00"
+                android:textSize="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-        <ImageView
-            android:layout_weight="0.1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:src="@drawable/arrow_bg1"/>
+        </LinearLayout>
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearReceived"
+        android:gravity="left"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="50dp">
 
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_weight="0.1"
-            android:src="@drawable/arrow_bg2"/>
-
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:orientation="vertical"
             android:background="@drawable/chat_left"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_weight="0.9"
             android:paddingTop="3dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="10dp">
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingBottom="5dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -98,9 +92,16 @@
                 android:text="Android charting application xml ui design tutorial with example. Android charting application xml ui design tutorial"
                 android:textColor="@color/colorBlack" />
 
+            <TextView
+                android:id="@+id/txtHoraReceived"
+                android:gravity="right"
+                android:textStyle="bold"
+                android:text="10:00"
+                android:textSize="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
         </LinearLayout>
-
-
 
 
     </LinearLayout>

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
@@ -15,6 +16,9 @@ import com.seef.chat.student.studentchat.R;
 import com.seef.chat.student.studentchat.Utils.Helper;
 import com.seef.chat.student.studentchat.adapters.ChatAdapter;
 import com.seef.chat.student.studentchat.models.Chat;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.BindViews;
@@ -43,15 +47,23 @@ public class ChatActivity extends AppCompatActivity {
         configInit();
     }
 
+    private String getHour() {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        return sdf.format(new Date());
+    }
+
+    private String getDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(new Date());
+    }
+
     private void configInit() {
         configDataBaseFirebase();
     }
 
     private void configDataBaseFirebase() {
-        /*optimizar codigo*/
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        dbRef = database.getReference();
-        adapter = new ChatAdapter(R.layout.row_chat, dbRef, this);
+        dbRef = FirebaseDatabase.getInstance().getReference();
+        adapter = new ChatAdapter(R.layout.row_chat, dbRef);
         configRecyclerView();
     }
 
@@ -64,13 +76,19 @@ public class ChatActivity extends AppCompatActivity {
 
     @OnClick(R.id.btnSend)
     void sendMessage() {
+        dbRef.push().setValue(getChat());
+        cleanInputText();
+    }
+
+    private Chat getChat() {
         Chat chat = new Chat();
         chat.setIdUser(Helper.ID_USER);
         chat.setUsername(Helper.USERNAME);
         chat.setPhoto(Helper.PHOTO_USER);
         chat.setMessage(txtMessage.getText().toString());
-        dbRef.push().setValue(chat);
-        cleanInputText();
+        chat.setHour(getHour());
+        chat.setDate(getDate());
+        return chat;
     }
 
     private void cleanInputText() {
