@@ -1,20 +1,11 @@
 package com.seef.chat.student.studentchat.models;
 
 public class Chat {
-    private String username;
+
     private String message;
-    private String photo;
-    private String idUser;
     private String hour;
     private String date;
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    private User user;
 
     public String getMessage() {
         return message;
@@ -22,22 +13,6 @@ public class Chat {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public String getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(String photo) {
-        this.photo = photo;
-    }
-
-    public String getIdUser() {
-        return idUser;
-    }
-
-    public void setIdUser(String idUser) {
-        this.idUser = idUser;
     }
 
     public String getHour() {
@@ -54,6 +29,14 @@ public class Chat {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @SuppressWarnings("unused")

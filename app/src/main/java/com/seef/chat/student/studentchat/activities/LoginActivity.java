@@ -16,8 +16,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.seef.chat.student.studentchat.R;
 import com.seef.chat.student.studentchat.Utils.Helper;
+import com.seef.chat.student.studentchat.models.User;
 
 import butterknife.BindString;
 import butterknife.BindView;
@@ -35,6 +41,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     @BindString(R.string.error_login_google)
     String errorLoginGoogle;
 
+    private DatabaseReference dbRef;
     private GoogleSignInOptions gso;
     private GoogleApiClient gac;
 
@@ -51,7 +58,12 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             redirectChat();
         } else {
             configFirebaseAuth();
+            configDataBaseFirebase();
         }
+    }
+
+    private void configDataBaseFirebase() {
+        dbRef = FirebaseDatabase.getInstance().getReference();
     }
 
     private void redirectChat() {
@@ -114,6 +126,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         return false;
     }
 
+    private void createUser(GoogleSignInAccount account) {
+        User user = new User();
+        user.setId(account.getId());
+        user.setLike("0");
+        user.setPhoto(account.getPhotoUrl().toString());
+        user.setUsername(account.getDisplayName());
+        dbRef.child("users").push().setValue(user);
+    }
+
     private void addIdUserSharePreference(GoogleSignInAccount account) {
         SharedPreferences sharedPreferences = getApplication().getSharedPreferences("UserProfile", 0);
         sharedPreferences.edit().putString("id", account.getId()).commit();
@@ -122,7 +143,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
-        addIdUserSharePreference(account);
+        recorrerUsers(account);
         if (validSharePreference())
             redirectChat();
         else
@@ -136,6 +157,27 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 .build();
     }
 
+    private void recorrerUsers(final GoogleSignInAccount account) {
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot child: dataSnapshot.child("users").getChildren()) {
+                    User user = child.getValue(User.class);
+                    if (user.getId().equals(account.getId().toString())) {
+                        addIdUserSharePreference(account);
+                        break;
+                    }
+                }
+                addIdUserSharePreference(account);
+                createUser(account);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
