@@ -2,13 +2,12 @@ package com.seef.chat.student.studentchat.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -61,6 +60,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             configDataBaseFirebase();
         }
     }
+
+
 
     private void configDataBaseFirebase() {
         dbRef = FirebaseDatabase.getInstance().getReference();
@@ -144,6 +145,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
         recorrerUsers(account);
+    }
+
+    private void validateSharePreferences() {
         if (validSharePreference())
             redirectChat();
         else
@@ -165,11 +169,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     User user = child.getValue(User.class);
                     if (user.getId().equals(account.getId().toString())) {
                         addIdUserSharePreference(account);
+                        validateSharePreferences();
                         return;
                     }
                 }
                 addIdUserSharePreference(account);
                 createUser(account);
+                validateSharePreferences();
             }
 
             @Override

@@ -2,24 +2,16 @@ package com.seef.chat.student.studentchat.adapters;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.ColorInt;
-import android.support.annotation.Px;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.firebase.database.DatabaseReference;
 import com.seef.chat.student.studentchat.R;
 import com.seef.chat.student.studentchat.Utils.Helper;
 import com.seef.chat.student.studentchat.models.Chat;
@@ -37,10 +29,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
     private Context context;
     private List<Chat> chatMessages;
+    private OnClickListener onClickListener;
 
-    public ChatAdapter(Context context, List<Chat> chatMessages) {
+    public ChatAdapter(Context context, List<Chat> chatMessages, OnClickListener onClickListener) {
         this.context = context;
         this.chatMessages = chatMessages;
+        this.onClickListener = onClickListener;
+
     }
 
     @Override
@@ -82,6 +77,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         holder.txtUserSend.setText(username);
         holder.txtMessageSend.setText(message);
         holder.txtHoraSend.setText(hour);
+
+        holder.setOnClickListener(chat, onClickListener);
+
     }
 
     public void add(ArrayList<Chat> listChat) {
@@ -121,12 +119,31 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
         @OnClick(R.id.txtUserSend)
         void infoProfileSend() {
+
             Toast.makeText(itemView.getContext(), "Send", Toast.LENGTH_SHORT).show();
         }
 
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+        }
+
+
+        public void setOnClickListener(final Chat chat, final OnClickListener onClickListener) {
+
+            txtUserSend.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onClickListener.onClick(chat);
+                }
+            });
+
+            /*itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onClickListener.onClick(chat);
+                }
+            });*/
         }
     }
 

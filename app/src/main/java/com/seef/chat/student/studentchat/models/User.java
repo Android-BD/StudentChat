@@ -9,6 +9,7 @@ public class User {
     private String username;
     private String photo;
     private String like;
+    private User user;
 
     public String getId() {
         return id;
@@ -40,6 +41,14 @@ public class User {
 
     public void setLike(String like) {
         this.like = like;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @SuppressWarnings("unused")
