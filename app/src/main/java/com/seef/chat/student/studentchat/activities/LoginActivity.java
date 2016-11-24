@@ -165,7 +165,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     User user = child.getValue(User.class);
                     if (user.getId().equals(account.getId().toString())) {
                         addIdUserSharePreference(account);
-                        break;
+                        return;
                     }
                 }
                 addIdUserSharePreference(account);

@@ -1,10 +1,19 @@
 package com.seef.chat.student.studentchat.adapters;
 
+import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.ColorInt;
+import android.support.annotation.Px;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,24 +23,36 @@ import com.google.firebase.database.DatabaseReference;
 import com.seef.chat.student.studentchat.R;
 import com.seef.chat.student.studentchat.Utils.Helper;
 import com.seef.chat.student.studentchat.models.Chat;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindColor;
+import butterknife.BindDrawable;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ChatAdapter extends FirebaseRecyclerAdapter<Chat, ChatAdapter.ChatViewHolder> {
+public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
-    public ChatAdapter(int modelLayout, DatabaseReference ref) {
-        super(Chat.class, modelLayout, ChatAdapter.ChatViewHolder.class, ref);
+    private Context context;
+    private List<Chat> chatMessages;
+
+    public ChatAdapter(Context context, List<Chat> chatMessages) {
+        this.context = context;
+        this.chatMessages = chatMessages;
     }
 
     @Override
-    public ChatViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ChatAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ViewGroup view = (ViewGroup) LayoutInflater.from(parent.getContext()).inflate(R.layout.row_chat, parent, false);
-        return new ChatViewHolder(view);
+        return new ViewHolder(view);
     }
 
     @Override
-    protected void populateViewHolder(ChatViewHolder viewHolder, Chat chat, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
+
+        Chat chat = this.chatMessages.get(position);
 
         String username = chat.getUser().getUsername();
         String message = chat.getMessage();
@@ -39,54 +60,71 @@ public class ChatAdapter extends FirebaseRecyclerAdapter<Chat, ChatAdapter.ChatV
         String hour = chat.getHour();
 
         if (idUser.trim().equals(Helper.ID_USER.trim())) {
-            viewHolder.txtUserSend.setText(username);
-
-            viewHolder.txtMessageSend.setText(message);
-            viewHolder.txtHoraSend.setText(hour);
-            viewHolder.linearReceived.setVisibility(View.GONE);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+            lp.gravity = Gravity.RIGHT;
+            lp.setMargins(70, 0, 15, 0);
+            holder.linearSend.setLayoutParams(lp);
+            holder.linearContent.setBackground(holder.chatRigth);
+            holder.linearContent.setPadding(20,10,20,10);
+            holder.txtUserSend.setGravity(Gravity.RIGHT);
+            holder.txtUserSend.setTextColor(holder.colorUserSend);
         } else {
-            viewHolder.txtUserReceived.setText(username);
-            viewHolder.txtMessageReceived.setText(message);
-            viewHolder.txtHoraReceived.setText(hour);
-            viewHolder.linearSend.setVisibility(View.GONE);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+            lp.gravity = Gravity.LEFT;
+            lp.setMargins(15, 0, 70, 0);
+            holder.linearSend.setLayoutParams(lp);
+            holder.linearContent.setBackground(holder.chatLeft);
+            holder.linearContent.setPadding(20,10,20,10);
+            holder.txtUserSend.setGravity(Gravity.LEFT);
+            holder.txtUserSend.setTextColor(holder.colorUserReceived);
         }
+
+        holder.txtUserSend.setText(username);
+        holder.txtMessageSend.setText(message);
+        holder.txtHoraSend.setText(hour);
     }
 
-    class ChatViewHolder extends RecyclerView.ViewHolder{
+    public void add(ArrayList<Chat> listChat) {
+        this.chatMessages = listChat;
+        this.notifyDataSetChanged();
+    }
+
+
+    @Override
+    public int getItemCount() {
+        return this.chatMessages.size();
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder{
 
         @BindView(R.id.txtUserSend)
         TextView txtUserSend;
         @BindView(R.id.txtMessageSend)
         TextView txtMessageSend;
-        @BindView(R.id.txtUserReceived)
-        TextView txtUserReceived;
-        @BindView(R.id.txtMessageReceived)
-        TextView txtMessageReceived;
         @BindView(R.id.txtHoraSend)
         TextView txtHoraSend;
-        @BindView(R.id.txtHoraReceived)
-        TextView txtHoraReceived;
 
         @BindView(R.id.linearSend)
         LinearLayout linearSend;
-        @BindView(R.id.linearReceived)
-        LinearLayout linearReceived;
+        @BindView(R.id.linearContent)
+        LinearLayout linearContent;
+
+        @BindDrawable(R.drawable.chat_left)
+        Drawable chatLeft;
+        @BindDrawable(R.drawable.chat_right)
+        Drawable chatRigth;
+
+        @BindColor(R.color.userSend)
+        ColorStateList colorUserSend;
+        @BindColor(R.color.userReceived)
+        ColorStateList colorUserReceived;
 
         @OnClick(R.id.txtUserSend)
         void infoProfileSend() {
             Toast.makeText(itemView.getContext(), "Send", Toast.LENGTH_SHORT).show();
         }
 
-        @OnClick(R.id.txtUserReceived)
-        void infoProfileReceived(){
-            Toast.makeText(itemView.getContext(), "Received", Toast.LENGTH_SHORT).show();
-        }
-
-        private void showProfile() {
-
-        }
-
-        public ChatViewHolder(View itemView) {
+        public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }

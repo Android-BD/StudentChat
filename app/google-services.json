@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "720136658401-5rb5nj5hjnhbvkoo1cqhghsn0urcopde.apps.googleusercontent.com",
+          "client_id": "720136658401-rj2qqnn8kd33bvdtmf9rmnpuc1tl2ljm.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.seef.chat.student.studentchat",
-            "certificate_hash": "5DC292B81AC876124797B1C88DEA6D867F887A40"
+            "certificate_hash": "6819A88177F2F8511C09BDE0308712F42354F074"
           }
         },
         {

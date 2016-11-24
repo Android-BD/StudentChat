@@ -1,6 +1,7 @@
 package com.seef.chat.student.studentchat.activities;
 
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +27,7 @@ import com.seef.chat.student.studentchat.models.Chat;
 import com.seef.chat.student.studentchat.models.User;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import butterknife.BindView;
@@ -44,8 +46,10 @@ public class ChatActivity extends AppCompatActivity {
     @BindView(R.id.recyclerChat)
     RecyclerView recyclerChat;
 
+    private ArrayList<Chat> listMessages;
+
     private DatabaseReference dbRef;
-    private FirebaseRecyclerAdapter adapter;
+    private ChatAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,28 +75,57 @@ public class ChatActivity extends AppCompatActivity {
 
     private void configDataBaseFirebase() {
         dbRef = FirebaseDatabase.getInstance().getReference();
-        adapter = new ChatAdapter(R.layout.row_chat, dbRef.child("messages").getRef());
+        adapter = new ChatAdapter(this, new ArrayList<Chat>());
         configRecyclerView();
     }
 
     private void configRecyclerView() {
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setReverseLayout(false);
-        recyclerChat.setLayoutManager(linearLayoutManager);
+        recyclerChat.setLayoutManager(new LinearLayoutManager(this));
         recyclerChat.setAdapter(adapter);
+        listener();
 
-        //configPositionRecyclerView();
     }
 
     private void configPositionRecyclerView() {
-        recyclerChat.scrollToPosition(recyclerChat.getAdapter().getItemCount() -1 );
+        recyclerChat.scrollToPosition(adapter.getItemCount()-1);
     }
 
     @OnClick(R.id.btnSend)
     void sendMessage() {
-        dbRef.child("messages").push().setValue(getChat());
-        //configPositionRecyclerView();
+        if (!txtMessage.getText().toString().trim().equals(""))
+            sendMessageFirebase(getChat());
+    }
+
+    private void sendMessageFirebase(Chat chat) {
+        dbRef = FirebaseDatabase.getInstance().getReference();
+        dbRef.child("messages").push().setValue(chat);
+        listener();
+    }
+
+    private void getUpdate() {
+        adapter.add(listMessages);
         cleanInputText();
+        configPositionRecyclerView();
+    }
+
+    private void listener() {
+
+        dbRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listMessages = new ArrayList<Chat>();
+                for (DataSnapshot child: dataSnapshot.child("messages").getChildren()) {
+                    Chat chat = child.getValue(Chat.class);
+                    listMessages.add(chat);
+                }
+                getUpdate();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private Chat getChat() {

@@ -11,4 +11,6 @@
     <color name="colorDivider">#BDBDBD</color>
     <color name="colorMessageLeft">#3F51B5</color>
     <color name="colorFontmessage">#CFD8DC</color>
+    <color name="userSend">#FFF</color>
+    <color name="userReceived">#607D8B</color>
 </resources>
