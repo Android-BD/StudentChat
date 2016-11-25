@@ -37,6 +37,8 @@ import com.seef.chat.student.studentchat.adapters.ChatAdapter;
 import com.seef.chat.student.studentchat.adapters.OnClickListener;
 import com.seef.chat.student.studentchat.models.Chat;
 import com.seef.chat.student.studentchat.models.User;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
@@ -119,8 +121,8 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
     private void configRecyclerView() {
         recyclerChat.setLayoutManager(new LinearLayoutManager(this));
         recyclerChat.setAdapter(adapter);
-        /*recyclerChat.setHasFixedSize(true);
-        recyclerChat.setItemViewCacheSize(10);
+        recyclerChat.setHasFixedSize(true);
+        /*recyclerChat.setItemViewCacheSize(10);
         recyclerChat.setDrawingCacheEnabled(true);
         recyclerChat.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);*/
         listener();
@@ -398,7 +400,7 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
         ImageView btnSendImage = (ImageView) dialogSendImage.findViewById(R.id.btnSendImage);
         ImageView btnCancelImage = (ImageView) dialogSendImage.findViewById(R.id.btnCancelImage);
         ImageView imageSend = (ImageView) dialogSendImage.findViewById(R.id.imgSend);
-        Picasso.with(this).load(uri).into(imageSend);
+        Picasso.with(this).load(uri).memoryPolicy(MemoryPolicy.NO_CACHE).networkPolicy(NetworkPolicy.NO_CACHE).noFade().into(imageSend);
         configEventComponentSendImage(btnSendImage, btnCancelImage, imageSend);
         dialogSendImage.show();
     }

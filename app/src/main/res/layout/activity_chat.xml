@@ -51,7 +51,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@mipmap/ic_option"
-                android:visibility="gone"
                 android:layout_alignBottom="@+id/txtInputWrapper"
                 android:layout_alignLeft="@+id/btnSend"
                 android:layout_alignParentBottom="true"

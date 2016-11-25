@@ -22,6 +22,8 @@ import com.google.firebase.storage.StorageReference;
 import com.seef.chat.student.studentchat.R;
 import com.seef.chat.student.studentchat.Utils.Helper;
 import com.seef.chat.student.studentchat.models.Chat;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -85,10 +87,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
         holder.txtUserSend.setText(username);
         holder.txtHoraSend.setText(hour);
-        holder.txtMessageSend.setText(message);
-        //if (!message.trim().equals(""))
-            //holder.txtMessageSend.setText(message);
-        /*else {
+        //holder.txtMessageSend.setText(message);
+        if (!message.trim().equals(""))
+            holder.txtMessageSend.setText(message);
+        else {
             holder.linearContentMessage.removeView(holder.txtMessageSend);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(400, 400);
             holder.imgMessage.setLayoutParams(lp);
@@ -102,6 +104,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
                             .load(uri)
                             .fit()
                             .centerCrop()
+                            .memoryPolicy(MemoryPolicy.NO_CACHE)
+                            .networkPolicy(NetworkPolicy.NO_CACHE)
+                            .noFade()
                             .into(holder.imgMessage);
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -112,7 +117,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             });
 
             holder.linearContentMessage.setGravity(Gravity.CENTER);
-        }*/
+        }
         holder.setOnClickListener(chat, onClickListener);
 
     }
@@ -162,8 +167,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         @BindColor(R.color.userReceived)
         ColorStateList colorUserReceived;
 
-        /*@BindView(R.id.imgMessage)
-        ImageView imgMessage;*/
+        @BindView(R.id.imgMessage)
+        ImageView imgMessage;
 
         @OnClick(R.id.txtUserSend)
         void infoProfileSend() {

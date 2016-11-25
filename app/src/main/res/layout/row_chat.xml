@@ -49,10 +49,10 @@
                     android:text="Android charting application xml ui design tutorial with example. Android charting application xml ui design tutorial"
                     android:textColor="@color/colorBlack" />
 
-                <!--<ImageView-->
-                    <!--android:id="@+id/imgMessage"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content" />-->
+                <ImageView
+                    android:id="@+id/imgMessage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
 
             </LinearLayout>
 
