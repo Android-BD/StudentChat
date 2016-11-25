@@ -57,7 +57,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         if (idUser.trim().equals(Helper.ID_USER.trim())) {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
             lp.gravity = Gravity.RIGHT;
-            lp.setMargins(70, 0, 15, 0);
+            lp.setMargins(90, 0, 20, 0);
             holder.linearSend.setLayoutParams(lp);
             holder.linearContent.setBackground(holder.chatRigth);
             holder.linearContent.setPadding(20,10,20,10);
@@ -66,7 +66,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         } else {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
             lp.gravity = Gravity.LEFT;
-            lp.setMargins(15, 0, 70, 0);
+            lp.setMargins(20, 0, 90, 0);
             holder.linearSend.setLayoutParams(lp);
             holder.linearContent.setBackground(holder.chatLeft);
             holder.linearContent.setPadding(20,10,20,10);
@@ -128,7 +128,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             ButterKnife.bind(this, itemView);
         }
 
-
         public void setOnClickListener(final Chat chat, final OnClickListener onClickListener) {
 
             txtUserSend.setOnClickListener(new View.OnClickListener() {
@@ -137,13 +136,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
                     onClickListener.onClick(chat);
                 }
             });
-
-            /*itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onClickListener.onClick(chat);
-                }
-            });*/
         }
     }
 

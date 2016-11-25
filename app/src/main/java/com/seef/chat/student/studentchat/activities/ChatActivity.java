@@ -1,6 +1,7 @@
 package com.seef.chat.student.studentchat.activities;
 
 import android.app.Dialog;
+import android.media.audiofx.LoudnessEnhancer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -15,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,6 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -86,7 +89,6 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
     }
 
     private void configDataBaseFirebase() {
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         dbRef = FirebaseDatabase.getInstance().getReference();
         adapter = new ChatAdapter(this, new ArrayList<Chat>(), this);
         configRecyclerView();
@@ -110,7 +112,6 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
     }
 
     private void sendMessageFirebase(Chat chat) {
-        dbRef = FirebaseDatabase.getInstance().getReference();
         dbRef.child("messages").push().setValue(chat);
         listener();
     }
@@ -180,8 +181,8 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
             @Override
             public void onClick(View view) {
                 checkLike.setChecked(checkLike.isChecked() ? true : false);
-                updateLikesUser(Helper.USER_PROFILE);
-
+                getUpdateValues();
+                existUserLike();
             }
         });
 
@@ -193,12 +194,17 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
         });
     }
 
-    private void updateLikesUser(User user) {
-
+    private void likeCreateUser(User user) {
+        User userLike = new User();
+        userLike.setId(Helper.ID_USER);
+        userLike.setUsername(Helper.USERNAME);
         Integer likes = Integer.valueOf(user.getLike()) + 1;
         Map<String, Object> updates = new HashMap<>();
-        updates.put("likes", likes);
+        updates.put("like", likes.toString());
+        Helper.REF_USER.child("users").push().setValue(userLike);
         Helper.REF_USER.updateChildren(updates);
+        txtCountLike.setText(likes.toString());
+
     }
 
     private void loadInfoProfile(User user) {
@@ -208,25 +214,134 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
         else
             Picasso.with(this).load(R.drawable.photo_profile).into(imgAvatar);
 
-        txtEstado.setText("Online");
+        txtEstado.setText("Estado de usuario proximamente...");
 
         txtCountLike.setText(user.getLike());
 
         txtUsername.setText(user.getUsername());
     }
 
-    private void recorrerUsers(final String idUser) {
-        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void getUser(Chat chat) {
+        DatabaseReference db = dbRef.child("users").getRef();
+        db.orderByChild("id").equalTo(chat.getUser().getId()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot child: dataSnapshot.child("users").getChildren()) {
-                    Helper.REF_USER = child.getRef();
-                    User user = child.getValue(User.class);
-                    if (user.getId().equals(idUser)) {
-                        loadInfoProfile(user);
-                        return;
+                DataSnapshot child = dataSnapshot.getChildren().iterator().next();
+                User user = child.getValue(User.class);
+                Helper.REF_USER = child.getRef();
+                loadInfoProfile(user);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void getUpdateValues() {
+        DatabaseReference dbreference = dbRef.child("users").getRef();
+        dbreference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                dataSnapshot.getRef().orderByChild("id").equalTo(Helper.USER_CHAT.getUser().getId()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        loadInfoProfile(dataSnapshot.getChildren().iterator().next().getValue(User.class));
+                        /*Helper.USER_PROFILE = ;*/
                     }
-                }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void existUserLike() {
+        DatabaseReference db = dbRef.child("users").getRef();
+        db.orderByChild("id").equalTo(Helper.USER_CHAT.getUser().getId()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                dataSnapshot.getChildren().iterator().next().child("users").getRef().orderByChild("id").equalTo(Helper.ID_USER).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        if (dataSnapshot.getChildrenCount() > 0) {
+                            dislikeDeleteUser(Helper.USER_PROFILE);
+                        } else {
+                            likeCreateUser(Helper.USER_PROFILE);
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void dislikeDeleteUser(User user) {
+        Integer likes = Integer.valueOf(user.getLike()) - 1;
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("like", likes.toString());
+        Helper.REF_USER.updateChildren(updates);
+        txtCountLike.setText(likes.toString());
+
+        Helper.REF_USER.child("users").getRef().orderByChild("id").equalTo(Helper.ID_USER).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                DataSnapshot child = dataSnapshot.getChildren().iterator().next();
+                child.getRef().removeValue();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void activeInhabilityLike(boolean checked) {
+        checkLike.setChecked(checked);
+    }
+
+    private void verificarLikeUser(Chat chat) {
+        DatabaseReference db = dbRef.child("users").getRef();
+        db.orderByChild("id").equalTo(chat.getUser().getId()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                dataSnapshot.getChildren().iterator().next().child("users").getRef().orderByChild("id").equalTo(Helper.ID_USER).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        if (dataSnapshot.getChildrenCount() > 0) {
+                            activeInhabilityLike(true);
+                        } else
+                            activeInhabilityLike(false);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
 
             @Override
@@ -238,9 +353,22 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
 
     @Override
     public void onClick(Chat chat) {
+        Helper.USER_CHAT = chat;
         loadProfile();
-        recorrerUsers(chat.getUser().getId());
+        verificarLikeUser(chat);
+        getUser(chat);
+        verificarMismoUsuario(chat);
         dialog.show();
+
+    }
+
+    private void verificarMismoUsuario(Chat chat) {
+        if (chat.getUser().getId().equals(Helper.ID_USER)) {
+            checkLike.setEnabled(false);
+            activeInhabilityLike(false);
+        } else {
+            checkLike.setEnabled(true);
+        }
     }
 
 }
