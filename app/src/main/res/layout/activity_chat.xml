@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            android:layout_above="@+id/btnSend" />
+            android:layout_above="@+id/linearOptions" />
 
 
         <android.support.design.widget.TextInputLayout
@@ -25,8 +25,8 @@
             android:layout_margin="5dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:layout_toLeftOf="@+id/btnSend"
-            android:layout_toStartOf="@+id/btnSend">
+            android:layout_toLeftOf="@+id/linearOptions"
+            android:layout_toStartOf="@+id/linearOptions">
 
             <EditText
                 android:layout_width="match_parent"
@@ -36,15 +36,37 @@
 
         </android.support.design.widget.TextInputLayout>
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/btnSend"
+        <LinearLayout
+            android:id="@+id/linearOptions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:src="@mipmap/ic_send"
+            android:orientation="horizontal"
+            android:gravity="center"
             android:layout_alignBottom="@+id/txtInputWrapper"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentRight="true">
+
+            <ImageView
+                android:id="@+id/imageOptions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_option"
+                android:layout_alignBottom="@+id/txtInputWrapper"
+                android:layout_alignLeft="@+id/btnSend"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/btnSend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:src="@mipmap/ic_send"
+                android:layout_alignBottom="@+id/txtInputWrapper"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true" />
+
+        </LinearLayout>
 
 
     </RelativeLayout>

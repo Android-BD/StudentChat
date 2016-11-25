@@ -62,7 +62,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
 
-
     private void configDataBaseFirebase() {
         dbRef = FirebaseDatabase.getInstance().getReference();
     }
@@ -165,7 +164,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot child: dataSnapshot.child("users").getChildren()) {
+                for (DataSnapshot child : dataSnapshot.child("users").getChildren()) {
                     User user = child.getValue(User.class);
                     if (user.getId().equals(account.getId().toString())) {
                         addIdUserSharePreference(account);

@@ -5,6 +5,7 @@ public class Chat {
     private String message;
     private String hour;
     private String date;
+    private String photo;
     private User user;
 
     public String getMessage() {
@@ -37,6 +38,14 @@ public class Chat {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 
     @SuppressWarnings("unused")

@@ -1,27 +1,36 @@
 package com.seef.chat.student.studentchat.activities;
 
 import android.app.Dialog;
-import android.media.audiofx.LoudnessEnhancer;
+import android.app.DialogFragment;
+import android.app.ProgressDialog;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.firebase.database.ChildEventListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.mlsdev.rximagepicker.RxImagePicker;
+import com.mlsdev.rximagepicker.Sources;
 import com.seef.chat.student.studentchat.R;
 import com.seef.chat.student.studentchat.Utils.Helper;
 import com.seef.chat.student.studentchat.adapters.ChatAdapter;
@@ -30,18 +39,19 @@ import com.seef.chat.student.studentchat.models.Chat;
 import com.seef.chat.student.studentchat.models.User;
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.internal.Utils;
 import de.hdodenhof.circleimageview.CircleImageView;
+import rx.functions.Action1;
 
 public class ChatActivity extends AppCompatActivity implements OnClickListener {
 
@@ -54,16 +64,23 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
     @BindView(R.id.recyclerChat)
     RecyclerView recyclerChat;
 
+    @BindView(R.id.imageOptions)
+    ImageView imgOptions;
+
     private ArrayList<Chat> listMessages;
 
     private DatabaseReference dbRef;
+    private StorageReference storageReference;
     private ChatAdapter adapter;
     private Dialog dialog;
+    private Dialog dialogSendImage;
 
     private CircleImageView imgAvatar;
     private TextView txtUsername, txtEstado, txtCountLike;
     private CheckBox checkLike;
     private ImageView imgClose;
+    private String urlImage = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +88,6 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
         setContentView(R.layout.activity_chat);
         ButterKnife.bind(this);
         configInit();
-        //loadProfile();
     }
 
     private String getHour() {
@@ -86,6 +102,12 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
 
     private void configInit() {
         configDataBaseFirebase();
+        configStorageFirebase();
+    }
+
+    private void configStorageFirebase() {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReferenceFromUrl(Helper.PATH_STORAGE);
     }
 
     private void configDataBaseFirebase() {
@@ -97,12 +119,16 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
     private void configRecyclerView() {
         recyclerChat.setLayoutManager(new LinearLayoutManager(this));
         recyclerChat.setAdapter(adapter);
+        recyclerChat.setHasFixedSize(true);
+        recyclerChat.setItemViewCacheSize(10);
+        recyclerChat.setDrawingCacheEnabled(true);
+        recyclerChat.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
         listener();
 
     }
 
     private void configPositionRecyclerView() {
-        recyclerChat.scrollToPosition(adapter.getItemCount()-1);
+        recyclerChat.scrollToPosition(adapter.getItemCount() - 1);
     }
 
     @OnClick(R.id.btnSend)
@@ -113,6 +139,7 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
 
     private void sendMessageFirebase(Chat chat) {
         dbRef.child("messages").push().setValue(chat);
+        urlImage = "";
         listener();
     }
 
@@ -123,12 +150,12 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
     }
 
     private void listener() {
-
-        dbRef.addValueEventListener(new ValueEventListener() {
+        DatabaseReference databaseReference = dbRef.child("messages").getRef();
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 listMessages = new ArrayList<Chat>();
-                for (DataSnapshot child: dataSnapshot.child("messages").getChildren()) {
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
                     Chat chat = child.getValue(Chat.class);
                     listMessages.add(chat);
                 }
@@ -148,6 +175,7 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
         chat.setHour(getHour());
         chat.setDate(getDate());
         chat.setUser(getUser());
+        chat.setPhoto(urlImage);
         return chat;
     }
 
@@ -163,19 +191,19 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
     }
 
     private void loadProfile() {
-        dialog =  new Dialog(this);
+        dialog = new Dialog(this);
         dialog.requestWindowFeature(getWindow().FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.design_profile);
         configComponent(dialog);
     }
 
     private void configComponent(final Dialog dialog) {
-        imgAvatar = (CircleImageView)dialog.findViewById(R.id.imgAvatar);
-        txtUsername = (TextView)dialog.findViewById(R.id.txtUsername);
-        txtEstado = (TextView)dialog.findViewById(R.id.txtEstado);
-        checkLike = (CheckBox)dialog.findViewById(R.id.checkLike);
-        txtCountLike = (TextView)dialog.findViewById(R.id.txtCountLikes);
-        imgClose = (ImageView)dialog.findViewById(R.id.imgClose);
+        imgAvatar = (CircleImageView) dialog.findViewById(R.id.imgAvatar);
+        txtUsername = (TextView) dialog.findViewById(R.id.txtUsername);
+        txtEstado = (TextView) dialog.findViewById(R.id.txtEstado);
+        checkLike = (CheckBox) dialog.findViewById(R.id.checkLike);
+        txtCountLike = (TextView) dialog.findViewById(R.id.txtCountLikes);
+        imgClose = (ImageView) dialog.findViewById(R.id.imgClose);
 
         checkLike.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -248,7 +276,7 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         loadInfoProfile(dataSnapshot.getChildren().iterator().next().getValue(User.class));
-                        /*Helper.USER_PROFILE = ;*/
+
                     }
 
                     @Override
@@ -351,6 +379,86 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
         });
     }
 
+    @OnClick(R.id.imageOptions)
+    void openGalery() {
+        RxImagePicker.with(this).requestImage(Sources.GALLERY).subscribe(new Action1<Uri>() {
+            @Override
+            public void call(Uri uri) {
+                showImageSend(uri);
+            }
+        });
+    }
+
+    private void showImageSend(Uri uri) {
+        dialogSendImage = new Dialog(this);
+
+        dialogSendImage.requestWindowFeature(getWindow().FEATURE_NO_TITLE);
+        dialogSendImage.setContentView(R.layout.design_send);
+
+        ImageView btnSendImage = (ImageView) dialogSendImage.findViewById(R.id.btnSendImage);
+        ImageView btnCancelImage = (ImageView) dialogSendImage.findViewById(R.id.btnCancelImage);
+        ImageView imageSend = (ImageView) dialogSendImage.findViewById(R.id.imgSend);
+        Picasso.with(this).load(uri).into(imageSend);
+        configEventComponentSendImage(btnSendImage, btnCancelImage, imageSend);
+        dialogSendImage.show();
+    }
+
+    private void configEventComponentSendImage(ImageView btnSendImage, ImageView btnCancelImage, final ImageView imageSend) {
+        btnCancelImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialogSendImage.dismiss();
+            }
+        });
+
+        btnSendImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                uploadImage(imageSend);
+                dialogSendImage.dismiss();
+            }
+        });
+    }
+
+    private void uploadImage(final ImageView imageSend) {
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage("Subiendo Imagen...");
+
+        AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
+            @Override
+            protected String doInBackground(String... strings) {
+                imageSend.setDrawingCacheEnabled(true);
+                imageSend.buildDrawingCache();
+                Bitmap bitmap = imageSend.getDrawingCache();
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] data = baos.toByteArray();
+                String timeStamp = "image" + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()) + ".png";
+                urlImage = timeStamp;
+                StorageReference uploadImageRef = storageReference.child("images/" + timeStamp);
+
+                UploadTask uploadTask = uploadImageRef.putBytes(data);
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        sendMessageFirebase(getChat());
+                        progressDialog.dismiss();
+                    }
+                });
+                return null;
+            }
+        };
+        progressDialog.show();
+        task.execute();
+    }
+
     @Override
     public void onClick(Chat chat) {
         Helper.USER_CHAT = chat;
@@ -359,7 +467,6 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
         getUser(chat);
         verificarMismoUsuario(chat);
         dialog.show();
-
     }
 
     private void verificarMismoUsuario(Chat chat) {
