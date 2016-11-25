@@ -85,10 +85,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
         holder.txtUserSend.setText(username);
         holder.txtHoraSend.setText(hour);
-
-        if (!message.trim().equals(""))
-            holder.txtMessageSend.setText(message);
-        else {
+        holder.txtMessageSend.setText(message);
+        //if (!message.trim().equals(""))
+            //holder.txtMessageSend.setText(message);
+        /*else {
             holder.linearContentMessage.removeView(holder.txtMessageSend);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(400, 400);
             holder.imgMessage.setLayoutParams(lp);
@@ -112,7 +112,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             });
 
             holder.linearContentMessage.setGravity(Gravity.CENTER);
-        }
+        }*/
         holder.setOnClickListener(chat, onClickListener);
 
     }
@@ -162,8 +162,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         @BindColor(R.color.userReceived)
         ColorStateList colorUserReceived;
 
-        @BindView(R.id.imgMessage)
-        ImageView imgMessage;
+        /*@BindView(R.id.imgMessage)
+        ImageView imgMessage;*/
 
         @OnClick(R.id.txtUserSend)
         void infoProfileSend() {

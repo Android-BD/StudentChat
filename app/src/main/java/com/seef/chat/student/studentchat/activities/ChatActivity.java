@@ -119,10 +119,10 @@ public class ChatActivity extends AppCompatActivity implements OnClickListener {
     private void configRecyclerView() {
         recyclerChat.setLayoutManager(new LinearLayoutManager(this));
         recyclerChat.setAdapter(adapter);
-        recyclerChat.setHasFixedSize(true);
+        /*recyclerChat.setHasFixedSize(true);
         recyclerChat.setItemViewCacheSize(10);
         recyclerChat.setDrawingCacheEnabled(true);
-        recyclerChat.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+        recyclerChat.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);*/
         listener();
 
     }
